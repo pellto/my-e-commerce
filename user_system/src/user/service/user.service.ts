@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -30,6 +30,10 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
+  async findOneByEmailForAuth(email: string) {
+    return this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
+  }
+
   async findOneByPhoneNumber(phoneNumber: string) {
     return this.userRepository.findOneBy({ phoneNumber });
   }
@@ -38,9 +42,9 @@ export class UserService {
     return this.userRepository.findOneBy({ phoneNumber, email });
   }
 
-  async create({ email, password, phoneNumber, name }: UserCreateDto) {
+  async create({ email, password, phoneNumber, name, role: targetRole }: UserCreateDto) {
     const queryRunner = this.dataSource.createQueryRunner();
-    const role = await this.roleService.getRoleByName(RoleName.NORMAL);
+    const role = await this.roleService.getRoleByName(targetRole);
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -58,6 +62,16 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  // TODO: Delete refresh token
+  async changeLoginStatus(id: number, status: boolean): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('user is not exist.');
+    }
+    user.isLoggedIn = status;
+    await this.userRepository.update({ id }, user);
   }
 
   private changeEntityToFindUserResDto(user: User): FindUserResDto {

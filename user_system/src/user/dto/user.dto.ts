@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, Matches } from 'class-validator';
+import { RoleName } from 'src/role/role.constant';
 
 export class UserCreateDto {
   @IsEmail()
@@ -10,4 +11,11 @@ export class UserCreateDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+  @Matches(
+    `^${Object.values(RoleName)
+      .filter((v) => typeof v !== 'number')
+      .join('|')}$`,
+    'i',
+  )
+  role: RoleName;
 }
