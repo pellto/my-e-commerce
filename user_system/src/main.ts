@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const port = 3000;
@@ -27,6 +28,19 @@ async function bootstrap() {
     }),
   );
 
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: ['localhost:9093'],
+      },
+      consumer: {
+        groupId: 'pelltos_kafka',
+      },
+    },
+  });
+
+  await app.startAllMicroservices();
   await app.listen(port);
   console.info(`listening on port ${port}`);
 }
