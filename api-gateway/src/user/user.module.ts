@@ -13,7 +13,7 @@ import { UserController } from './user.controller';
         return ClientProxyFactory.create({
           transport: Transport.TCP,
           options: {
-            host: 'user-service',
+            host: 'localhost',
             port: 3001,
           },
         });

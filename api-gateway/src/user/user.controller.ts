@@ -25,7 +25,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiGetResponse(FindUserResDto)
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.userService.findOneById(id);
+  async findOne(@Param('id') id: number) {
+    const temp = await this.userService.findOneById(id);
+    return temp;
   }
 }

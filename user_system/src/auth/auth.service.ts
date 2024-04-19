@@ -22,53 +22,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup({ name, email, phoneNumber, password, passwordConfirm, role }: SignupReqDto) {
-    if (role === RoleName.ADMIN) {
-      throw new ForbiddenException('User does not create Admin user.');
-    }
-
-    await this.checkSignupCondition({ password, passwordConfirm, phoneNumber, email });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    return await this.userService.create({ name, email, phoneNumber, password: hashedPassword, role });
-  }
-
-  async createAdmin({ name, email, phoneNumber, password, passwordConfirm, role }: SignupReqDto) {
-    await this.checkSignupCondition({ password, passwordConfirm, phoneNumber, email });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    return await this.userService.create({ name, email, phoneNumber, password: hashedPassword, role });
-  }
-
-  async signin({ email, password }: SigninReqDto): Promise<SigninResDto> {
-    const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new NotFoundException('User is not exist.');
-    }
-
-    const isMatched = await bcrypt.compare(password, user.password);
-    if (!isMatched) {
-      throw new UnauthorizedException('Password is not matched.');
-    }
-
-    const accessTokenPayload: Payload = { id: user.id, email: user.email, tokenType: 'access' };
-    const accessToken = this.jwtService.sign(accessTokenPayload);
-
-    await this.userService.changeLoginStatus(user.id, true);
-    return { accessToken };
-  }
-
-  async signout(id: number) {
-    this.userService.changeLoginStatus(id, false);
-  }
-
   async validateRole(jwt: string, requiredRole: RoleName) {
     const payload = this.jwtService.decode(jwt) as Payload;
-    const user = await this.userService.findOneByEmailForAuth(payload.email);
+    const user = await this.userService.findOneByEmailForAuth({ email: payload.email });
     if (user.id !== payload.id) {
       throw new UnauthorizedException('Not Valid accessToken.');
     }
-    const userRole = user.role.role.name;
+    const userRole = user.role.name;
 
     if (userRole === RoleName.ADMIN) {
       return true;

@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, Matches } from 'class-validator';
-import { RoleName } from 'src/role/role.constant';
+import { RoleName } from '../enum/user.enum';
 
-export class UserCreateDto {
+export class UserCreatePayloadDto {
   @IsEmail()
   email: string;
   @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{10,30}$/)
@@ -20,21 +20,7 @@ export class UserCreateDto {
   role: RoleName;
 }
 
-export class ValidateUserPayloadDto {
-  email: string;
-  password: string;
-}
-
-export class CheckAlreadyExistPayloadDto {
-  email: string;
-  phoneNumber: string;
-}
-
-export class ChangeLoginStatusPayloadDto {
+export class UserFindResponsDto {
   id: number;
-  isLoggedIn: boolean;
-}
-
-export class FindEmailPayloadDto {
   email: string;
 }

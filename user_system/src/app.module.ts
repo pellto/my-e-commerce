@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
-import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -13,7 +12,7 @@ import { StoreModule } from './store/store.module';
       port: 3306,
       username: 'root',
       password: 'mysqlMyRootPassword', // TODO: fix to env
-      database: 'coupang_dev',
+      database: 'my_e_commerce_dev',
       autoLoadEntities: true,
       synchronize: true,
       logging: true,
@@ -21,7 +20,6 @@ import { StoreModule } from './store/store.module';
     UserModule,
     AuthModule,
     RoleModule,
-    StoreModule,
   ],
   controllers: [],
   providers: [],

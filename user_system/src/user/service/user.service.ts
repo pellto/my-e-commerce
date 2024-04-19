@@ -1,12 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { DataSource, Repository } from 'typeorm';
-import { UserCreateDto } from '../dto/user.dto';
+import {
+  ChangeLoginStatusPayloadDto,
+  CheckAlreadyExistPayloadDto,
+  FindEmailPayloadDto,
+  UserCreateDto,
+  ValidateUserPayloadDto,
+} from '../dto/user.dto';
 import { FindUserResDto } from '../dto/user.res';
 import { UserRole } from '../entity/user-role.entity';
 import { RoleService } from 'src/role/role.service';
-import { RoleName } from 'src/role/role.constant';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -21,17 +27,21 @@ export class UserService {
     return users.map(this.changeEntityToFindUserResDto);
   }
 
-  async findOneById(id: number): Promise<FindUserResDto> {
-    const user = await this.userRepository.findOneBy({ id });
-    return this.changeEntityToFindUserResDto(user);
+  async findOneById(id: number) {
+    // Promise<FindUserResDto>
+    // const user = await this.userRepository.findOneBy({ id });
+    // return this.changeEntityToFindUserResDto(user);
+    console.log('USER SYSTEM 11 >> ', id);
+    return `USER SYSTEM findOneById ${id}`;
   }
 
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
 
-  async findOneByEmailForAuth(email: string) {
-    return this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
+  async findOneByEmailForAuth({ email }: FindEmailPayloadDto) {
+    const user = await this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
+    return { id: user.id, role: { name: user.role.role.name } };
   }
 
   async findOneByPhoneNumber(phoneNumber: string) {
@@ -64,14 +74,33 @@ export class UserService {
     }
   }
 
+  async validate({ email, password }: ValidateUserPayloadDto) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User is not exist.');
+    }
+
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+      throw new UnauthorizedException('Password is not matched.');
+    }
+    return { id: user.id, email: user.email };
+  }
+
+  async checkAlreadyExist({ email, phoneNumber }: CheckAlreadyExistPayloadDto): Promise<{ isAlreadyExist: boolean }> {
+    const user = await this.userRepository.findOne({ where: [{ email }, { phoneNumber }] });
+    return { isAlreadyExist: user !== null };
+  }
+
   // TODO: Delete refresh token
-  async changeLoginStatus(id: number, status: boolean): Promise<void> {
+  async changeLoginStatus({ id, isLoggedIn }: ChangeLoginStatusPayloadDto): Promise<{ id: number }> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('user is not exist.');
     }
-    user.isLoggedIn = status;
+    user.isLoggedIn = isLoggedIn;
     await this.userRepository.update({ id }, user);
+    return { id };
   }
 
   private changeEntityToFindUserResDto(user: User): FindUserResDto {

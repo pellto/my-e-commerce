@@ -1,31 +1,57 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { Controller } from '@nestjs/common';
 import { UserService } from './service/user.service';
-import { PageResDto } from 'src/common/dto/res.dto';
-import { ApiGetItemsResponse, ApiGetResponse } from 'src/common/decorator/swagger.decorator';
 import { FindUserResDto } from './dto/user.res';
 import { PageReqDto } from 'src/common/dto/req.dto';
-import { Role } from 'src/common/decorator/role.decorator';
-import { RoleName } from 'src/role/role.constant';
+import { MessagePattern } from '@nestjs/microservices';
+import {
+  ChangeLoginStatusPayloadDto,
+  CheckAlreadyExistPayloadDto,
+  FindEmailPayloadDto,
+  UserCreateDto,
+  ValidateUserPayloadDto,
+} from './dto/user.dto';
 
-@ApiTags('User')
-@ApiExtraModels(PageResDto, FindUserResDto)
-@Controller('user')
+@Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiBearerAuth()
-  @ApiGetItemsResponse(FindUserResDto)
-  @Role(RoleName.ADMIN)
-  @Get()
-  async findAll(@Query() { page, size }: PageReqDto): Promise<FindUserResDto[]> {
+  @MessagePattern({ cmd: 'findAll' })
+  async findAll({ page, size }: PageReqDto): Promise<FindUserResDto[]> {
     return this.userService.findAll(page, size);
   }
 
-  @ApiBearerAuth()
-  @ApiGetResponse(FindUserResDto)
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.userService.findOneById(id);
+  @MessagePattern({ cmd: 'findOneById' })
+  async findOneById(id: number) {
+    return await this.userService.findOneById(id);
+  }
+
+  @MessagePattern({ cmd: 'findOneByEmail' })
+  async findOneByEmail(email: string) {
+    return await this.userService.findOneByEmail(email);
+  }
+
+  @MessagePattern({ cmd: 'create' })
+  async create(payload: UserCreateDto) {
+    return await this.userService.create(payload);
+  }
+
+  @MessagePattern({ cmd: 'validate' })
+  async validate(payload: ValidateUserPayloadDto) {
+    return await this.userService.validate(payload);
+  }
+
+  @MessagePattern({ cmd: 'checkAlreadyExist' })
+  async checkAlreadyExist(payload: CheckAlreadyExistPayloadDto) {
+    return await this.userService.checkAlreadyExist(payload);
+  }
+
+  @MessagePattern({ cmd: 'changeLoginStatus' })
+  async changeLoginStatus(payload: ChangeLoginStatusPayloadDto) {
+    return await this.userService.changeLoginStatus(payload);
+  }
+
+  @MessagePattern({ cmd: 'findOneByEmailForAuth' })
+  async findOneByEmailForAuth(payload: FindEmailPayloadDto) {
+    return await this.userService.findOneByEmailForAuth(payload);
   }
 }
