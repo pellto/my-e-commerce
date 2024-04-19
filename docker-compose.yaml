@@ -3,7 +3,7 @@ services:
     image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: mysqlMyRootPassword
-      MYSQL_DATABASE: coupang_dev
+      MYSQL_DATABASE: my_e_commerce_dev
     command:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
