@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { Role } from 'src/common/decorator/role.decorator';
 import { RoleName } from 'src/user/enum/user.enum';
-import { CreateCategoryReqDto } from './dto/req.dto';
+import { CreateCategoryReqDto, CreateProductReqDto } from './dto/req.dto';
 import { CategoryLevel } from './enum/category-level.enum';
 import { Public } from 'src/common/decorator/public.decorator';
 
@@ -11,6 +11,13 @@ import { Public } from 'src/common/decorator/public.decorator';
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+
+  @ApiBearerAuth()
+  @Role(RoleName.SELLER)
+  @Post()
+  async createProduct(@Body() createProductReqDto: CreateProductReqDto) {
+    return await this.productService.createProduct(createProductReqDto);
+  }
 
   @ApiBearerAuth()
   @Role(RoleName.ADMIN)

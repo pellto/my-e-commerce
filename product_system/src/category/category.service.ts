@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LargeCategory } from './entity/large-category.entity';
@@ -52,5 +52,22 @@ export class CategoryService {
   async getSmallCategories({ parentId }: CreateCategoryReqDto) {
     const entities = await this.smallCategoryRepository.findBy({ middleCategory: { id: parentId } });
     return entities.map((entity) => ({ id: entity.id, name: entity.name }));
+  }
+
+  async checkIsExistLargeById(id: number): Promise<void> {
+    const entity = await this.largeCategoryRepository.findOneBy({ id });
+    if (!entity) throw new NotFoundException('Large category is not exist.');
+  }
+
+  async checkIsExistMiddleById(id?: number): Promise<void> {
+    if (!id) return;
+    const entity = await this.smallCategoryRepository.findOneBy({ id });
+    if (!entity) throw new NotFoundException('Small category is not exist.');
+  }
+
+  async checkIsExistSmallById(id?: number): Promise<void> {
+    if (!id) return;
+    const entity = await this.middleCategoryRepository.findOneBy({ id });
+    if (!entity) throw new NotFoundException('Middle category is not exist.');
   }
 }

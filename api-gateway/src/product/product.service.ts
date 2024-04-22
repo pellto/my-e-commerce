@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateCategoryReqDto } from './dto/req.dto';
+import { CreateCategoryReqDto, CreateProductReqDto } from './dto/req.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreatedCategoryDto, GottenCategoryDto } from './dto/category.dto';
 import { firstValueFrom } from 'rxjs';
@@ -7,6 +7,12 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class ProductService {
   constructor(@Inject('PRODUCT_SERVICE') private client: ClientProxy) {}
+
+  async createProduct(payload: CreateProductReqDto) {
+    const pattern = { cmd: 'createProduct' };
+    const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
+    return data;
+  }
 
   async createLargeCategory(createCategoryReq: CreateCategoryReqDto) {
     const pattern = { cmd: 'createLargeCategory' };
