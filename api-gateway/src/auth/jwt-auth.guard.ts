@@ -33,9 +33,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const http = context.switchToHttp();
 
     if (requiredRole) {
-      const { headers } = http.getRequest<Request>();
-      const token = headers?.authorization.split(' ')[1];
-      return this.authService.validateRole(token, requiredRole);
+      const request = http.getRequest<Request>();
+      const token = request.headers?.authorization.split(' ')[1];
+      return this.authService.validateRole(token, requiredRole, request);
     }
     return super.canActivate(context);
   }

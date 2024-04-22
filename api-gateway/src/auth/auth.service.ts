@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ExecutionContext,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
@@ -11,6 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { Payload } from './dto/auth.dto';
 import { SigninReqDto, SignupReqDto } from './dto/req.dto';
 import * as bcrypt from 'bcrypt';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -63,7 +65,7 @@ export class AuthService {
     return await this.userService.create({ name, email, phoneNumber, password: hashedPassword, role: RoleName.ADMIN });
   }
 
-  async validateRole(jwt: string, requiredRole: RoleName) {
+  async validateRole(jwt: string, requiredRole: RoleName, request: Request) {
     const payload = this.jwtService.decode(jwt) as Payload;
     const user = await this.userService.findOneByEmailForAuth({ email: payload.email });
     if (user.id !== payload.id) {
@@ -87,6 +89,7 @@ export class AuthService {
       return false;
     }
 
+    request.user = { id: user.id };
     return true;
   }
 }

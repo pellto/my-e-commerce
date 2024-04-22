@@ -67,4 +67,12 @@ export class UserService {
     const data = await firstValueFrom<{ id: string }>(this.client.send<{ id: string }>(pattern, payload));
     return data;
   }
+
+  async checkIsSeller(payload: { id: string }): Promise<boolean> {
+    const pattern = { cmd: 'checkIsSeller' };
+    const { isSeller } = await firstValueFrom<{ isSeller: boolean }>(
+      this.client.send<{ isSeller: boolean }>(pattern, payload),
+    );
+    return isSeller;
+  }
 }
