@@ -54,4 +54,9 @@ export class UserController {
   async findOneByEmailForAuth(payload: FindEmailPayloadDto) {
     return await this.userService.findOneByEmailForAuth(payload);
   }
+
+  @MessagePattern({ cmd: 'checkIsSeller' })
+  async checkIsSeller({ id }: { id: number }) {
+    return await this.userService.checkIsSeller(id);
+  }
 }

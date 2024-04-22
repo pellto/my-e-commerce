@@ -13,6 +13,7 @@ import { FindUserResDto } from '../dto/user.res';
 import { UserRole } from '../entity/user-role.entity';
 import { RoleService } from 'src/role/role.service';
 import * as bcrypt from 'bcrypt';
+import { RoleName } from 'src/role/role.constant';
 
 @Injectable()
 export class UserService {
@@ -90,6 +91,11 @@ export class UserService {
   async findOneByEmailForAuth({ email }: FindEmailPayloadDto) {
     const user = await this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
     return { id: user.id, role: { name: user.role.role.name } };
+  }
+
+  async checkIsSeller(id: number) {
+    const user = await this.userRepository.findOne({ where: { id }, relations: { role: { role: {} } } });
+    return { isSeller: user.role.role.name === RoleName.SELLER };
   }
 
   private changeEntityToFindUserResDto(user: User): FindUserResDto {

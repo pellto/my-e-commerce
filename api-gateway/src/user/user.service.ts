@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { UserCreatePayloadDto } from './dto/user.dto';
@@ -68,11 +68,13 @@ export class UserService {
     return data;
   }
 
-  async checkIsSeller(payload: { id: string }): Promise<boolean> {
+  async checkIsSeller(payload: { id: number }): Promise<void> {
     const pattern = { cmd: 'checkIsSeller' };
     const { isSeller } = await firstValueFrom<{ isSeller: boolean }>(
       this.client.send<{ isSeller: boolean }>(pattern, payload),
     );
-    return isSeller;
+    if (!isSeller) {
+      throw new UnauthorizedException('User is not Seller');
+    }
   }
 }
