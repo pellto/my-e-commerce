@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 
 @Module({
@@ -18,7 +17,6 @@ import { RoleModule } from './role/role.module';
       logging: true,
     }),
     UserModule,
-    AuthModule,
     RoleModule,
   ],
   controllers: [],

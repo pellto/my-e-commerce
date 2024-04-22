@@ -27,29 +27,13 @@ export class UserService {
     return users.map(this.changeEntityToFindUserResDto);
   }
 
-  async findOneById(id: number) {
-    // Promise<FindUserResDto>
-    // const user = await this.userRepository.findOneBy({ id });
-    // return this.changeEntityToFindUserResDto(user);
-    console.log('USER SYSTEM 11 >> ', id);
-    return `USER SYSTEM findOneById ${id}`;
+  async findOneById(id: number): Promise<FindUserResDto> {
+    const user = await this.userRepository.findOneBy({ id });
+    return this.changeEntityToFindUserResDto(user);
   }
 
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
-  }
-
-  async findOneByEmailForAuth({ email }: FindEmailPayloadDto) {
-    const user = await this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
-    return { id: user.id, role: { name: user.role.role.name } };
-  }
-
-  async findOneByPhoneNumber(phoneNumber: string) {
-    return this.userRepository.findOneBy({ phoneNumber });
-  }
-
-  async findOneByPhoneNumberAndEmail(phoneNumber: string, email: string) {
-    return this.userRepository.findOneBy({ phoneNumber, email });
   }
 
   async create({ email, password, phoneNumber, name, role: targetRole }: UserCreateDto) {
@@ -101,6 +85,11 @@ export class UserService {
     user.isLoggedIn = isLoggedIn;
     await this.userRepository.update({ id }, user);
     return { id };
+  }
+
+  async findOneByEmailForAuth({ email }: FindEmailPayloadDto) {
+    const user = await this.userRepository.findOne({ where: { email }, relations: { role: { role: {} } } });
+    return { id: user.id, role: { name: user.role.role.name } };
   }
 
   private changeEntityToFindUserResDto(user: User): FindUserResDto {

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEmail, IsInt, IsNumberString } from 'class-validator';
+import { IsDateString, IsEmail, IsInt } from 'class-validator';
 
 export class FindUserResDto {
   @ApiProperty({ required: true })

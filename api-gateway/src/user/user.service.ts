@@ -47,14 +47,6 @@ export class UserService {
     return data;
   }
 
-  async findOneByPhoneNumber(phoneNumber: string) {
-    return undefined;
-  }
-
-  async findOneByPohneNumberAndEmail(page: number, size: number) {
-    return 'User findOneByPohneNumberAndEmail';
-  }
-
   async create(payload: UserCreatePayloadDto) {
     const pattern = { cmd: 'create' };
     const data = await firstValueFrom<{ id: string }>(this.client.send<{ id: string }>(pattern, payload));
