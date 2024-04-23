@@ -3,6 +3,7 @@ import { StoreService } from './store.service';
 import { MessagePattern } from '@nestjs/microservices';
 import {
   ChangeOwnerReqDto,
+  CheckIsManagerReqDto,
   CheckIsOwnerReqDto,
   CreateStoreManagerReqDto,
   CreateStoreReqDto,
@@ -23,6 +24,12 @@ export class StoreController {
   async checkIsOwner({ id, targetUserId }: CheckIsOwnerReqDto) {
     const isOwner = await this.storeService.checkIsOwner(id, targetUserId);
     return isOwner;
+  }
+
+  @MessagePattern({ cmd: 'checkIsManager' })
+  async checkIsManager({ id, managerId }: CheckIsManagerReqDto) {
+    const isManager = await this.storeService.checkIsManager(id, managerId);
+    return isManager;
   }
 
   @MessagePattern({ cmd: 'createStoreManager' })

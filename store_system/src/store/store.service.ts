@@ -23,6 +23,11 @@ export class StoreService {
     return { isOwner: store !== null };
   }
 
+  async checkIsManager(id: number, managerId: number) {
+    const storeManager = await this.storeManagerRepository.findOneBy({ id, managerId });
+    return { isManager: storeManager !== null };
+  }
+
   async createStoreManager(storeId: number, requesterId: number, targetSellerId: number) {
     const { isOwner } = await this.checkIsOwner(storeId, requesterId);
     if (!isOwner) {

@@ -28,6 +28,24 @@ export class StoreService {
     }
   }
 
+  async checkIsStoreManager(payload: { id: number; userId: number }): Promise<void> {
+    const pattern = { cmd: 'checkIsManager' };
+    const { isManager } = await firstValueFrom<{ isManager: boolean }>(
+      this.client.send<{ isManager: boolean }>(pattern, payload),
+    );
+    if (!isManager) {
+      throw new UnauthorizedException('User is not manager.');
+    }
+  }
+
+  async checkIsStoreUser(id: number, userId: number): Promise<boolean> {
+    const isManager = await Promise.allSettled([
+      this.checkIsOwner({ id, targetUserId: userId }),
+      this.checkIsStoreManager({ id, userId: userId }),
+    ]);
+    return isManager.filter((result) => result.status === 'rejected').length === 0;
+  }
+
   async createStoreManager(payload: CreateStoreManagerPayloadDto) {
     const pattern = { cmd: 'createStoreManager' };
     const data = await firstValueFrom<{ message: string }>(this.client.send<{ message: string }>(pattern, payload));

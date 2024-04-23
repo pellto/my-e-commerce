@@ -22,5 +22,6 @@ import { UserModule } from 'src/user/user.module';
       },
     },
   ],
+  exports: [StoreService],
 })
 export class StoreModule {}

@@ -14,6 +14,13 @@ export class CheckIsOwnerReqDto {
   targetUserId: number;
 }
 
+export class CheckIsManagerReqDto {
+  @IsInt()
+  id: number;
+  @IsInt()
+  managerId: number;
+}
+
 export class CreateStoreManagerReqDto {
   @IsInt()
   requesterId: number;
