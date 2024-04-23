@@ -1,7 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from '../entity/product.entity';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { CategoryService } from 'src/category/category.service';
 import { CreateProductDto } from '../dto/product.dto';
 import { ProductInfo } from '../entity/product-info.entity';
@@ -12,54 +11,74 @@ import { ProductOptionState } from '../enum/product-option-state.enum';
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectRepository(Product) private readonly productRepository: Repository<Product>,
-    @InjectRepository(ProductInfo) private readonly productInfoRepository: Repository<ProductInfo>,
-    @InjectRepository(ProductOptionCategory)
-    private readonly productOptionCategoryRepository: Repository<ProductOptionCategory>,
-    @InjectRepository(ProductOption)
-    private readonly productOptionRepository: Repository<ProductOption>,
     private readonly categoryService: CategoryService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
     if (!createProductDto.largeCategoryId) {
       throw new BadRequestException('Large Category is required.');
     }
-    await this.categoryService.checkIsExistLargeById(createProductDto.largeCategoryId);
-    await this.categoryService.checkIsExistMiddleById(createProductDto.middleCategoryId);
-    await this.categoryService.checkIsExistSmallById(createProductDto.smallCategoryId);
-    const product = this.productRepository.create({
-      storeId: createProductDto.storeId,
-      name: createProductDto.name,
-      price: createProductDto.price,
-      largeCategory: { id: createProductDto.largeCategoryId },
-      middleCategory: { id: createProductDto.middleCategoryId ?? undefined },
-      smallCategory: { id: createProductDto.smallCategoryId ?? undefined },
-    });
-    await this.productRepository.insert(product);
-    const productInfo = this.productInfoRepository.create(createProductDto.info);
-    await this.productInfoRepository.insert(productInfo);
-    const productOptioncategories = await Promise.all(
-      createProductDto.optionCategory.map(async (optionCategory) => {
-        const productOptionCategory = this.productOptionCategoryRepository.create({ name: optionCategory.name });
-        await this.productOptionCategoryRepository.insert(productOptionCategory);
-        const options = await Promise.all(
-          optionCategory.productOptions.map(async (productOption) => {
-            const productOptionEntity = this.productOptionRepository.create({
-              ...productOption,
-              quantity: 0,
-              state: ProductOptionState.REGISTER,
-            });
-            await this.productOptionRepository.insert(productOptionEntity);
-            return productOptionEntity;
-          }),
-        );
-        productOptionCategory.productOptions = options;
-        return productOptionCategory;
-      }),
-    );
-    product.info = productInfo;
-    product.options = productOptioncategories;
-    return product;
+
+    // 카테고리 체크
+    const checkCategoryList = await Promise.allSettled([
+      this.categoryService.checkIsExistLargeById(createProductDto.largeCategoryId),
+      this.categoryService.checkIsExistMiddleById(createProductDto.middleCategoryId),
+      this.categoryService.checkIsExistSmallById(createProductDto.smallCategoryId),
+    ]);
+    if (checkCategoryList.filter((result) => result.status === 'rejected').length >= 1) {
+      throw new NotFoundException('Category is not found.');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction('REPEATABLE READ');
+    try {
+      // 상품 생성
+      const product = queryRunner.manager.create(Product, {
+        storeId: createProductDto.storeId,
+        name: createProductDto.name,
+        price: createProductDto.price,
+        largeCategory: { id: createProductDto.largeCategoryId },
+        middleCategory: { id: createProductDto.middleCategoryId },
+        smallCategory: { id: createProductDto.smallCategoryId },
+      });
+      await queryRunner.manager.insert(Product, product);
+
+      // 상품 정보 생성
+      const productInfo = queryRunner.manager.create(ProductInfo, {
+        ...createProductDto.info,
+        productId: product.id,
+      });
+      await queryRunner.manager.insert(ProductInfo, productInfo);
+
+      // 상품 옵션 카테고리 생성
+      for (const optionCategory of createProductDto.optionCategory) {
+        const createdOptionCategory = queryRunner.manager.create(ProductOptionCategory, {
+          name: optionCategory.name,
+          productId: product.id,
+        });
+        await queryRunner.manager.insert(ProductOptionCategory, createdOptionCategory);
+
+        // 상품 옵션 생성
+        for (const option of optionCategory.productOptions) {
+          const createdOption = queryRunner.manager.create(ProductOption, {
+            ...option,
+            quantity: 0,
+            state: ProductOptionState.REGISTER,
+            optionCategoryId: { id: createdOptionCategory.id },
+          });
+          await queryRunner.manager.insert(ProductOption, createdOption);
+        }
+      }
+
+      await queryRunner.commitTransaction();
+      return product;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

@@ -37,6 +37,7 @@ export class CreateProductOptionReqDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
   @ApiProperty({ required: true, example: 100 })
   @IsInt()
   price: number;
@@ -47,14 +48,11 @@ export class CreateProductOptionCategoryReqDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
   @ApiProperty({
     required: true,
-    // TODO: Swagger Nested example value
-    // examples: [
-    //   { name: 'productOption2', price: 200 },
-    //   { name: 'productOption3', price: 300 },
-    // ],
     isArray: true,
+    type: CreateProductOptionReqDto,
   })
   @ValidateNested({ each: true })
   @Type(() => CreateProductOptionReqDto)
@@ -65,40 +63,39 @@ export class CreateProductReqDto {
   @ApiProperty({ required: true, example: 1 })
   @IsInt()
   storeId: number;
+
   @ApiProperty({ required: true, example: 'product name' })
   @IsString()
   @IsNotEmpty()
   name: string;
+
   @ApiProperty({ required: true, example: 30_000 })
   @IsInt()
   price: number;
+
   @ApiProperty({ required: true, example: 1 })
   @IsInt()
   largeCategoryId: number;
+
   @ApiProperty({ required: false, example: 1 })
   @IsOptional()
   @IsInt()
   middleCategoryId?: number;
+
   @ApiProperty({ required: false, example: 1 })
   @IsOptional()
   @IsInt()
   smallCategoryId?: number;
+
   @ApiProperty({ required: true, example: { description: 'product description 123' } })
   @ValidateNested()
   @Type(() => CreateProductInfoReqDto)
   info: CreateProductInfoReqDto;
+
   @ApiProperty({
     required: true,
     isArray: true,
-    examples: [
-      {
-        name: 'optionCategory1',
-        productOptions: [
-          { name: 'productOption2', price: 200 },
-          { name: 'productOption3', price: 300 },
-        ],
-      },
-    ],
+    type: CreateProductOptionCategoryReqDto,
   })
   @ValidateNested({ each: true })
   @Type(() => CreateProductOptionCategoryReqDto)
