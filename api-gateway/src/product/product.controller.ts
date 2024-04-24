@@ -3,16 +3,24 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   ParseIntPipe,
+  Patch,
   Post,
+  Put,
   Query,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { Role } from 'src/common/decorator/role.decorator';
 import { RoleName } from 'src/user/enum/user.enum';
-import { CreateCategoryReqDto, CreateProductReqDto } from './dto/req.dto';
+import {
+  CreateCategoryReqDto,
+  CreateProductReqDto,
+  UpdateOptionsReqDto,
+  UpdateProductInfoReqDto,
+  UpdateProductReqDto,
+} from './dto/req.dto';
 import { CategoryLevel } from './enum/category-level.enum';
 import { Public } from 'src/common/decorator/public.decorator';
 import { StoreService } from 'src/store/store.service';
@@ -30,10 +38,7 @@ export class ProductController {
   @Role(RoleName.SELLER)
   @Post()
   async createProduct(@Body() createProductReqDto: CreateProductReqDto, @User() user: ValidatedUser) {
-    const isStoreUser = await this.storeService.checkIsStoreUser(createProductReqDto.storeId, +user.id);
-    if (!isStoreUser) {
-      throw new UnauthorizedException('The user does not have permission to the store.');
-    }
+    await this.storeService.checkIsStoreUser(createProductReqDto.storeId, +user.id);
     return await this.productService.createProduct(createProductReqDto);
   }
 
@@ -51,6 +56,34 @@ export class ProductController {
       return await this.productService.createSmallCategory(createCategoryReq);
     }
     throw new BadRequestException('Unsupported Category Level');
+  }
+
+  @ApiBearerAuth()
+  @Role(RoleName.SELLER)
+  @Put('info')
+  async updateProductInfo(@Body() updateProductInfo: UpdateProductInfoReqDto, @User() user: ValidatedUser) {
+    await this.storeService.checkIsStoreUser(updateProductInfo.storeId, +user.id);
+    return await this.productService.updateProductInfo(updateProductInfo);
+  }
+
+  @ApiBearerAuth()
+  @Role(RoleName.SELLER)
+  @Put('option')
+  async updateOptions(@Body() updateOptionsReq: UpdateOptionsReqDto, @User() user: ValidatedUser) {
+    await this.storeService.checkIsStoreUser(updateOptionsReq.storeId, +user.id);
+    return await this.productService.updateOptions(updateOptionsReq);
+  }
+
+  @ApiBearerAuth()
+  @Role(RoleName.SELLER)
+  @Patch(':id')
+  async updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductReq: UpdateProductReqDto,
+    @User() user: ValidatedUser,
+  ) {
+    await this.storeService.checkIsStoreUser(updateProductReq.storeId, +user.id);
+    return await this.productService.updateProduct({ ...updateProductReq, id });
   }
 
   @Public()

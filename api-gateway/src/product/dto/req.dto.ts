@@ -32,6 +32,67 @@ export class CreateProductInfoReqDto {
   description: string;
 }
 
+export class UpdateProductInfoReqDto {
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  storeId: number;
+
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  productId: number;
+
+  @ApiProperty({ required: true, example: 'product description' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+}
+
+export class UpdateProductOptionReqDto {
+  @ApiProperty({ required: true, example: 'productOption1' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ required: true, example: 100 })
+  @IsInt()
+  price: number;
+}
+
+export class UpdateProductOptionCategoryReqDto {
+  @ApiProperty({ required: true, example: 'productOptionCategory1' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    required: true,
+    isArray: true,
+    type: UpdateProductOptionReqDto,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProductOptionReqDto)
+  productOptions: UpdateProductOptionReqDto[];
+}
+
+export class UpdateOptionsReqDto {
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  storeId: number;
+
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  productId: number;
+
+  @ApiProperty({
+    required: true,
+    isArray: true,
+    type: UpdateProductOptionCategoryReqDto,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProductOptionCategoryReqDto)
+  optionCategories: UpdateProductOptionCategoryReqDto[];
+}
+
 export class CreateProductOptionReqDto {
   @ApiProperty({ required: true, example: 'productOption1' })
   @IsString()
@@ -100,4 +161,20 @@ export class CreateProductReqDto {
   @ValidateNested({ each: true })
   @Type(() => CreateProductOptionCategoryReqDto)
   optionCategory: CreateProductOptionCategoryReqDto[];
+}
+
+export class UpdateProductReqDto {
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  storeId: number;
+
+  @ApiProperty({ required: false, example: 'will chage name' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false, example: 20_000 })
+  @IsOptional()
+  @IsInt()
+  price?: number;
 }

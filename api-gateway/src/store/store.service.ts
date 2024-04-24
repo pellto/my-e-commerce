@@ -38,12 +38,15 @@ export class StoreService {
     }
   }
 
-  async checkIsStoreUser(id: number, userId: number): Promise<boolean> {
-    const isManager = await Promise.allSettled([
+  async checkIsStoreUser(id: number, userId: number): Promise<void> {
+    const checkList = [
       this.checkIsOwner({ id, targetUserId: userId }),
       this.checkIsStoreManager({ id, userId: userId }),
-    ]);
-    return isManager.filter((result) => result.status === 'rejected').length === 0;
+    ];
+    const isManager = await Promise.allSettled(checkList);
+    if (isManager.filter((result) => result.status === 'rejected').length === checkList.length) {
+      throw new UnauthorizedException('The user does not have permission to the store.');
+    }
   }
 
   async createStoreManager(payload: CreateStoreManagerPayloadDto) {

@@ -20,7 +20,7 @@ export class ProductOption extends TemporalUpdatableEntity {
   @Column({ type: 'enum', enum: ProductOptionState })
   state: ProductOptionState;
 
-  @ManyToOne(() => ProductOptionCategory, (productOptionCategory) => productOptionCategory.id)
+  @ManyToOne(() => ProductOptionCategory, (productOptionCategory) => productOptionCategory.productOptions)
   @JoinColumn({ name: 'product_option_category_id' })
   optionCategoryId: ProductOptionCategory;
 }

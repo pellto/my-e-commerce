@@ -1,27 +1,51 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateCategoryReqDto, CreateProductReqDto } from './dto/req.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreatedCategoryDto, GottenCategoryDto } from './dto/category.dto';
 import { firstValueFrom } from 'rxjs';
+import {
+  CreateCategoryPayload,
+  CreateProductPayload,
+  UpdateOptionsPayload,
+  UpdateProductInfoPayload,
+  UpdateProductPayload,
+} from './dto/payload.dto';
 
 @Injectable()
 export class ProductService {
   constructor(@Inject('PRODUCT_SERVICE') private client: ClientProxy) {}
 
-  async createProduct(payload: CreateProductReqDto) {
+  async createProduct(payload: CreateProductPayload) {
     const pattern = { cmd: 'createProduct' };
     const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
     return data;
   }
 
-  async createLargeCategory(createCategoryReq: CreateCategoryReqDto) {
+  async updateProductInfo(payload: UpdateProductInfoPayload) {
+    const pattern = { cmd: 'updateProductInfo' };
+    const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
+    return data;
+  }
+
+  async updateOptions(payload: UpdateOptionsPayload) {
+    const pattern = { cmd: 'updateProductOptions' };
+    const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
+    return data;
+  }
+
+  async updateProduct(payload: UpdateProductPayload) {
+    const pattern = { cmd: 'updateProduct' };
+    const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
+    return data;
+  }
+
+  async createLargeCategory(createCategoryReq: CreateCategoryPayload) {
     const pattern = { cmd: 'createLargeCategory' };
     const payload = { name: createCategoryReq.name };
     const data = await firstValueFrom<CreatedCategoryDto>(this.client.send<CreatedCategoryDto>(pattern, payload));
     return data;
   }
 
-  async createMiddleCategory(createCategoryReq: CreateCategoryReqDto) {
+  async createMiddleCategory(createCategoryReq: CreateCategoryPayload) {
     if (!createCategoryReq.parentId) {
       throw new BadRequestException('large category id is required.');
     }
@@ -31,7 +55,7 @@ export class ProductService {
     return data;
   }
 
-  async createSmallCategory(createCategoryReq: CreateCategoryReqDto) {
+  async createSmallCategory(createCategoryReq: CreateCategoryPayload) {
     if (!createCategoryReq.parentId) {
       throw new BadRequestException('middle category id is required.');
     }

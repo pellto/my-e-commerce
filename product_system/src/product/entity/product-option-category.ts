@@ -15,6 +15,8 @@ export class ProductOptionCategory extends TemporalEntity {
   @JoinColumn({ name: 'product_id' })
   productId: number;
 
-  @OneToMany(() => ProductOption, (productOption) => productOption.optionCategoryId)
+  @OneToMany(() => ProductOption, (productOption) => productOption.optionCategoryId, {
+    cascade: ['soft-remove'],
+  })
   productOptions: ProductOption[];
 }

@@ -32,9 +32,16 @@ export class Product extends TemporalUpdatableEntity {
   @JoinColumn({ name: 'small_category_id' })
   smallCategory?: SmallCategory;
 
-  @OneToOne(() => ProductInfo, (productInfo) => productInfo.id)
+  @OneToOne(() => ProductInfo, (productInfo) => productInfo.productId, { cascade: ['soft-remove'] })
   info?: ProductInfo;
 
-  @OneToMany(() => ProductOptionCategory, (productOptionCategory) => productOptionCategory.id)
+  @OneToMany(() => ProductOptionCategory, (productOptionCategory) => productOptionCategory.productId, {
+    cascade: ['soft-remove'],
+  })
   options?: ProductOptionCategory[];
+
+  public changeProductNameOrPrice(name?: string, price?: number) {
+    this.name = name ?? this.name;
+    this.price = price ?? this.price;
+  }
 }
