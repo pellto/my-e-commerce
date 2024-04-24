@@ -10,7 +10,7 @@ export class UpdateProductInfoPayload {
   description: string;
 }
 
-export class UpdateProductOptionPayload {
+export class UpdateProductOption {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -19,14 +19,19 @@ export class UpdateProductOptionPayload {
   price: number;
 }
 
+export class UpdateProductOptionPayload extends UpdateProductOption {
+  @IsInt()
+  optionId: number;
+}
+
 export class UpdateProductOptionCategoryPayload {
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ValidateNested({ each: true })
-  @Type(() => UpdateProductOptionPayload)
-  productOptions: UpdateProductOptionPayload[];
+  @Type(() => UpdateProductOption)
+  productOptions: UpdateProductOption[];
 }
 
 export class UpdateOptionsPayload {

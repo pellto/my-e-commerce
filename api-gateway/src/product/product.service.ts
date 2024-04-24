@@ -7,6 +7,7 @@ import {
   CreateProductPayload,
   UpdateOptionsPayload,
   UpdateProductInfoPayload,
+  UpdateProductOptionPayload,
   UpdateProductPayload,
 } from './dto/payload.dto';
 
@@ -26,14 +27,20 @@ export class ProductService {
     return data;
   }
 
-  async updateOptions(payload: UpdateOptionsPayload) {
-    const pattern = { cmd: 'updateProductOptions' };
+  async updateProductOptionCategories(payload: UpdateOptionsPayload) {
+    const pattern = { cmd: 'updateProductOptionCategories' };
     const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
     return data;
   }
 
   async updateProduct(payload: UpdateProductPayload) {
     const pattern = { cmd: 'updateProduct' };
+    const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
+    return data;
+  }
+
+  async updateProductOption(payload: UpdateProductOptionPayload) {
+    const pattern = { cmd: 'updateProductOption' };
     const data = await firstValueFrom<any>(this.client.send<any>(pattern, payload));
     return data;
   }

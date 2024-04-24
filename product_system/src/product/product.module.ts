@@ -5,8 +5,8 @@ import { ProductController } from './product.controller';
 import { Product } from './entity/product.entity';
 import { CategoryModule } from 'src/category/category.module';
 import { ProductInfo } from './entity/product-info.entity';
-import { ProductOptionCategory } from './entity/product-option-category';
-import { ProductOption } from './entity/product-option';
+import { ProductOptionCategory } from './entity/product-option-category.entity';
+import { ProductOption } from './entity/product-option.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, ProductInfo, ProductOptionCategory, ProductOption]), CategoryModule],

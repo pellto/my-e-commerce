@@ -4,7 +4,7 @@ import { SmallCategory } from 'src/category/entity/small-category.entity';
 import { TemporalUpdatableEntity } from 'src/common/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ProductInfo } from './product-info.entity';
-import { ProductOptionCategory } from './product-option-category';
+import { ProductOptionCategory } from './product-option-category.entity';
 
 @Entity()
 export class Product extends TemporalUpdatableEntity {

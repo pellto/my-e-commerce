@@ -1,7 +1,7 @@
 import { TemporalUpdatableEntity } from 'src/common/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ProductOptionState } from '../enum/product-option-state.enum';
-import { ProductOptionCategory } from './product-option-category';
+import { ProductOptionCategory } from './product-option-category.entity';
 
 @Entity({ name: 'product_option' })
 export class ProductOption extends TemporalUpdatableEntity {
@@ -23,4 +23,9 @@ export class ProductOption extends TemporalUpdatableEntity {
   @ManyToOne(() => ProductOptionCategory, (productOptionCategory) => productOptionCategory.productOptions)
   @JoinColumn({ name: 'product_option_category_id' })
   optionCategoryId: ProductOptionCategory;
+
+  public changeNameOrPrice(name?: string, price?: number) {
+    this.name = name;
+    this.price = price;
+  }
 }

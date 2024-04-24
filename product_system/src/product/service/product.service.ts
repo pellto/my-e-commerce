@@ -4,16 +4,22 @@ import { DataSource, IsNull, Repository } from 'typeorm';
 import { CategoryService } from 'src/category/category.service';
 import { CreateProductDto } from '../dto/product.dto';
 import { ProductInfo } from '../entity/product-info.entity';
-import { ProductOptionCategory } from '../entity/product-option-category';
-import { ProductOption } from '../entity/product-option';
+import { ProductOptionCategory } from '../entity/product-option-category.entity';
+import { ProductOption } from '../entity/product-option.entity';
 import { ProductOptionState } from '../enum/product-option-state.enum';
-import { UpdateOptionsReqDto, UpdateProductInfoReqDto, UpdateProductReqDto } from '../dto/req.dto';
+import {
+  UpdateOptionsReqDto,
+  UpdateProductInfoReqDto,
+  UpdateProductOptionReqDto,
+  UpdateProductReqDto,
+} from '../dto/req.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product) private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductOption) private readonly productOptionRepository: Repository<ProductOption>,
     private readonly categoryService: CategoryService,
     private readonly dataSource: DataSource,
   ) {}
@@ -87,7 +93,7 @@ export class ProductService {
 
   async updateProduct({ id, name, price }: UpdateProductReqDto) {
     if (!name && !price) {
-      throw new BadRequestException('Either A or B is required.');
+      throw new BadRequestException('Either name or price is required.');
     }
 
     const product = await this.productRepository.findOneBy({ id });
@@ -100,7 +106,7 @@ export class ProductService {
     return 'SUCCESS';
   }
 
-  async updateProductOptions(updateProductOptionsReq: UpdateOptionsReqDto) {
+  async updateProductOptionCategories(updateProductOptionsReq: UpdateOptionsReqDto) {
     const product = await this.productRepository.findOne({
       where: { id: updateProductOptionsReq.productId },
       relations: { options: { productOptions: true } },
@@ -170,5 +176,15 @@ export class ProductService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async updateProductOption({ optionId, name, price }: UpdateProductOptionReqDto) {
+    if (!name && !price) {
+      throw new BadRequestException('Either name or price is required.');
+    }
+    const option = await this.productOptionRepository.findOne({ where: { id: optionId } });
+    option.changeNameOrPrice(name, price);
+    await this.productOptionRepository.save(option);
+    return 'SUCCESS';
   }
 }

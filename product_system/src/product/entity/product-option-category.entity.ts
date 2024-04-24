@@ -1,7 +1,7 @@
 import { TemporalEntity } from 'src/common/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from './product.entity';
-import { ProductOption } from './product-option';
+import { ProductOption } from './product-option.entity';
 
 @Entity({ name: 'product_option_category' })
 export class ProductOptionCategory extends TemporalEntity {

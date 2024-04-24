@@ -19,6 +19,7 @@ import {
   CreateProductReqDto,
   UpdateOptionsReqDto,
   UpdateProductInfoReqDto,
+  UpdateProductOptionReqDto,
   UpdateProductReqDto,
 } from './dto/req.dto';
 import { CategoryLevel } from './enum/category-level.enum';
@@ -68,10 +69,10 @@ export class ProductController {
 
   @ApiBearerAuth()
   @Role(RoleName.SELLER)
-  @Put('option')
+  @Put('option-category')
   async updateOptions(@Body() updateOptionsReq: UpdateOptionsReqDto, @User() user: ValidatedUser) {
     await this.storeService.checkIsStoreUser(updateOptionsReq.storeId, +user.id);
-    return await this.productService.updateOptions(updateOptionsReq);
+    return await this.productService.updateProductOptionCategories(updateOptionsReq);
   }
 
   @ApiBearerAuth()
@@ -84,6 +85,22 @@ export class ProductController {
   ) {
     await this.storeService.checkIsStoreUser(updateProductReq.storeId, +user.id);
     return await this.productService.updateProduct({ ...updateProductReq, id });
+  }
+
+  @ApiBearerAuth()
+  @Role(RoleName.SELLER)
+  @Patch('option/:optionId')
+  async updateProductOption(
+    @Param('optionId', ParseIntPipe) optionId: number,
+    @Body() updateProductOptionReq: UpdateProductOptionReqDto,
+    @User() user: ValidatedUser,
+  ) {
+    await this.storeService.checkIsStoreUser(updateProductOptionReq.storeId, +user.id);
+    return await this.productService.updateProductOption({
+      name: updateProductOptionReq.name,
+      price: updateProductOptionReq.price,
+      optionId,
+    });
   }
 
   @Public()

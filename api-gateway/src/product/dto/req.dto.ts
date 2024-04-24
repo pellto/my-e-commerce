@@ -47,7 +47,7 @@ export class UpdateProductInfoReqDto {
   description: string;
 }
 
-export class UpdateProductOptionReqDto {
+export class UpdateProductOptionDto {
   @ApiProperty({ required: true, example: 'productOption1' })
   @IsString()
   @IsNotEmpty()
@@ -56,6 +56,12 @@ export class UpdateProductOptionReqDto {
   @ApiProperty({ required: true, example: 100 })
   @IsInt()
   price: number;
+}
+
+export class UpdateProductOptionReqDto extends UpdateProductOptionDto {
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  storeId: number;
 }
 
 export class UpdateProductOptionCategoryReqDto {
@@ -67,11 +73,11 @@ export class UpdateProductOptionCategoryReqDto {
   @ApiProperty({
     required: true,
     isArray: true,
-    type: UpdateProductOptionReqDto,
+    type: UpdateProductOptionDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => UpdateProductOptionReqDto)
-  productOptions: UpdateProductOptionReqDto[];
+  @Type(() => UpdateProductOptionDto)
+  productOptions: UpdateProductOptionDto[];
 }
 
 export class UpdateOptionsReqDto {

@@ -1,7 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { ProductService } from './service/product.service';
 import { MessagePattern } from '@nestjs/microservices';
-import { CreateProductReqDto, UpdateOptionsReqDto, UpdateProductInfoReqDto, UpdateProductReqDto } from './dto/req.dto';
+import {
+  CreateProductReqDto,
+  UpdateOptionsReqDto,
+  UpdateProductInfoReqDto,
+  UpdateProductOptionReqDto,
+  UpdateProductReqDto,
+} from './dto/req.dto';
 
 @Controller()
 export class ProductController {
@@ -17,13 +23,18 @@ export class ProductController {
     return await this.productService.updateProductInfo(updateProductInfoReq);
   }
 
-  @MessagePattern({ cmd: 'updateProductOptions' })
-  async updateProductOptions(updateProductOptionsReq: UpdateOptionsReqDto) {
-    return await this.productService.updateProductOptions(updateProductOptionsReq);
+  @MessagePattern({ cmd: 'updateProductOptionCategories' })
+  async updateProductOptionCategories(updateProductOptionsReq: UpdateOptionsReqDto) {
+    return await this.productService.updateProductOptionCategories(updateProductOptionsReq);
   }
 
   @MessagePattern({ cmd: 'updateProduct' })
   async updateProduct(updateProductReq: UpdateProductReqDto) {
     return await this.productService.updateProduct(updateProductReq);
+  }
+
+  @MessagePattern({ cmd: 'updateProductOption' })
+  async updateProductOption(updateProductOptionReq: UpdateProductOptionReqDto) {
+    return await this.productService.updateProductOption(updateProductOptionReq);
   }
 }

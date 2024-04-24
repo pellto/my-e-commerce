@@ -66,7 +66,7 @@ export class UpdateProductInfoReqDto {
   description: string;
 }
 
-export class UpdateProductOptionReqDto {
+export class UpdateProductOption {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -81,8 +81,8 @@ export class UpdateProductOptionCategoryReqDto {
   name: string;
 
   @ValidateNested({ each: true })
-  @Type(() => UpdateProductOptionReqDto)
-  productOptions: UpdateProductOptionReqDto[];
+  @Type(() => UpdateProductOption)
+  productOptions: UpdateProductOption[];
 }
 
 export class UpdateOptionsReqDto {
@@ -97,6 +97,19 @@ export class UpdateOptionsReqDto {
 export class UpdateProductReqDto {
   @IsInt()
   id: number;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsInt()
+  price?: number;
+}
+
+export class UpdateProductOptionReqDto {
+  @IsInt()
+  optionId: number;
 
   @IsOptional()
   @IsString()
