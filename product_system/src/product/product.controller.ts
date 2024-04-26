@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { ProductService } from './service/product.service';
 import { MessagePattern } from '@nestjs/microservices';
 import {
+  CheckExistOptionReqDto,
   CreateProductReqDto,
   UpdateOptionsReqDto,
   UpdateProductInfoReqDto,
@@ -36,5 +37,10 @@ export class ProductController {
   @MessagePattern({ cmd: 'updateProductOption' })
   async updateProductOption(updateProductOptionReq: UpdateProductOptionReqDto) {
     return await this.productService.updateProductOption(updateProductOptionReq);
+  }
+
+  @MessagePattern({ cmd: 'checkExistOption' })
+  async checkExistOption(checkExistOptionReq: CheckExistOptionReqDto) {
+    return await this.productService.checkExistOption(checkExistOptionReq);
   }
 }

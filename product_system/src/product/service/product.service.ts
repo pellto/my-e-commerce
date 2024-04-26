@@ -8,6 +8,7 @@ import { ProductOptionCategory } from '../entity/product-option-category.entity'
 import { ProductOption } from '../entity/product-option.entity';
 import { ProductOptionState } from '../enum/product-option-state.enum';
 import {
+  CheckExistOptionReqDto,
   UpdateOptionsReqDto,
   UpdateProductInfoReqDto,
   UpdateProductOptionReqDto,
@@ -186,5 +187,24 @@ export class ProductService {
     option.changeNameOrPrice(name, price);
     await this.productOptionRepository.save(option);
     return 'SUCCESS';
+  }
+
+  async checkExistOption({ productId, optionCategoryId, optionId }: CheckExistOptionReqDto) {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: { options: { productOptions: {} } },
+    });
+    const targetOptionCategory = product.options.filter((optionCategory) => {
+      return optionCategory.id === optionCategoryId;
+    });
+
+    if (targetOptionCategory.length !== 1) {
+      return { isExist: false };
+    }
+
+    const targetOption = targetOptionCategory[0].productOptions.filter((option) => {
+      return option.id === optionId;
+    });
+    return { isExist: targetOption.length === 1 };
   }
 }

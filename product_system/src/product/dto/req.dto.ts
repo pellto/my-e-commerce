@@ -119,3 +119,12 @@ export class UpdateProductOptionReqDto {
   @IsInt()
   price?: number;
 }
+
+export class CheckExistOptionReqDto {
+  @IsInt()
+  productId: number;
+  @IsInt()
+  optionCategoryId: number;
+  @IsInt()
+  optionId: number;
+}

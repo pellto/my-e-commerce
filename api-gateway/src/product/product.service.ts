@@ -91,4 +91,12 @@ export class ProductService {
     const data = await firstValueFrom<GottenCategoryDto[]>(this.client.send<GottenCategoryDto[]>(pattern, payload));
     return data;
   }
+
+  async checkExistOption(payload: { productId: number; optionCategoryId: number; optionId: number }) {
+    const pattern = { cmd: 'checkExistOption' };
+    const isExist = await firstValueFrom<{ isExist: boolean }>(
+      this.client.send<{ isExist: boolean }>(pattern, payload),
+    );
+    if (!isExist) throw new BadRequestException('Not exist product option.');
+  }
 }
