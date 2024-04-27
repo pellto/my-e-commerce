@@ -24,3 +24,9 @@ export class RemoveProductReqDto {
   @IsInt()
   cartProductId: number;
 }
+
+export class ChangeProductQuantity {
+  @ApiProperty({ required: true, example: 1 })
+  @IsInt()
+  quantity: number;
+}
