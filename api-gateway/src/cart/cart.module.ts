@@ -3,6 +3,7 @@ import { CartService } from './cart.service';
 import { CartController } from './cart.controller';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { ProductModule } from 'src/product/product.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [ProductModule],
@@ -10,12 +11,13 @@ import { ProductModule } from 'src/product/product.module';
     CartService,
     {
       provide: 'CART_SERVICE',
-      useFactory: () => {
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
         return ClientProxyFactory.create({
           transport: Transport.TCP,
           options: {
-            host: 'localhost',
-            port: 3004,
+            host: configService.get('cart_system.host'),
+            port: configService.get('cart_system.port'),
           },
         });
       },

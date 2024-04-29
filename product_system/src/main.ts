@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const port = 3003;
@@ -19,7 +20,10 @@ async function bootstrap() {
     }),
   );
 
+  const configService = app.get(ConfigService);
+  const stage = configService.get('NODE_STAGE');
+
   await app.listen();
-  console.info(`listening on port ${port}`);
+  console.info(`[STAGE=${stage}] listening on port ${port}`);
 }
 bootstrap();

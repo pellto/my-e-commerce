@@ -2,8 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
+  const port = 3000;
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
@@ -26,6 +28,10 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3000);
+  const configService = app.get(ConfigService);
+  const stage = configService.get('NODE_STAGE');
+
+  await app.listen(port);
+  console.info(`[STAGE=${stage}] listening on port ${port}`);
 }
 bootstrap();

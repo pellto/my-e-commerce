@@ -1,19 +1,37 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { StoreModule } from './store/store.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import mysqlConfig from './config/mysql.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'mysqlMyRootPassword', // TODO: fix to env
-      database: 'my_e_commerce_dev',
-      autoLoadEntities: true,
-      synchronize: true,
-      logging: true,
+    ConfigModule.forRoot({
+      envFilePath: `envs/.${process.env.NODE_STAGE}.env`,
+      isGlobal: true,
+      load: [mysqlConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        let obj: TypeOrmModuleOptions = {
+          type: 'mysql',
+          host: configService.get('mysql.host'),
+          port: configService.get('mysql.port'),
+          username: configService.get('mysql.username'),
+          password: configService.get('mysql.password'),
+          database: configService.get('mysql.database'),
+          autoLoadEntities: true,
+        };
+
+        if (configService.get('NODE_STAGE') === 'local') {
+          obj = Object.assign(obj, {
+            logging: true,
+            synchronize: true,
+          });
+        }
+        return obj;
+      },
     }),
     StoreModule,
   ],

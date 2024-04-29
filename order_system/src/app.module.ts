@@ -25,7 +25,7 @@ import mysqlConfig from './config/mysql.config';
           autoLoadEntities: true,
         };
 
-        if (configService.get('STAGE') === 'local') {
+        if (configService.get('NODE_STAGE') === 'local') {
           obj = Object.assign(obj, {
             logging: true,
             synchronize: true,

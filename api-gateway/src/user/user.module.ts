@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   exports: [UserService],
@@ -9,12 +10,13 @@ import { UserController } from './user.controller';
     UserService,
     {
       provide: 'USER_SERVICE',
-      useFactory: () => {
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
         return ClientProxyFactory.create({
           transport: Transport.TCP,
           options: {
-            host: 'localhost',
-            port: 3001,
+            host: configService.get('user_system.host'),
+            port: configService.get('user_system.port'),
           },
         });
       },
