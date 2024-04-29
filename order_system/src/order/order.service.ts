@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateOrderReqDto } from './dto/req.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entity/order.entity';
@@ -47,6 +47,52 @@ export class OrderService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getOrder(id: number, userId: number) {
+    const order = await this.orderRepository.findOne({ where: { id }, relations: { products: true } });
+    if (!order) {
+      throw new NotFoundException('Order is not exist.');
+    }
+
+    if (order.ordererId !== userId) {
+      throw new UnauthorizedException('Not authorized for this order.');
+    }
+
+    return order;
+  }
+
+  async getOrders(userId: number) {
+    const orders = await this.orderRepository.find({ where: { ordererId: userId }, relations: { products: true } });
+    return orders;
+  }
+
+  async getOrderByCode(code: string, userId: number) {
+    const order = await this.orderRepository.findOne({ where: { code } });
+    if (!order) {
+      throw new NotFoundException('Order is not exist.');
+    }
+
+    if (order.ordererId !== userId) {
+      throw new UnauthorizedException('Not authorized for this order.');
+    }
+
+    return order;
+  }
+
+  async cancelOrder(id: number, userId: number) {
+    const order = await this.orderRepository.findOne({ where: { id } });
+    if (!order) {
+      throw new NotFoundException('Order is not exist.');
+    }
+
+    if (order.ordererId !== userId) {
+      throw new UnauthorizedException('Not authorized for this order.');
+    }
+
+    order.state = OrderState.CANCELED;
+    await this.orderRepository.save(order);
+    return 'SUCCESS';
   }
 
   private generateOrderCode(length: number) {

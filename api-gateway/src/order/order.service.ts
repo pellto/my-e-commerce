@@ -1,6 +1,13 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateOrderPayload, OrderProductDto } from './dto/payload.dto';
+import {
+  CancelOrderPayload,
+  CreateOrderPayload,
+  GetOrderByCodePayload,
+  GetOrderPayload,
+  GetOrdersPayload,
+  OrderProductDto,
+} from './dto/payload.dto';
 import { ProductService } from 'src/product/product.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -15,6 +22,30 @@ export class OrderService {
     await this.checkOrderProductCategories(payload.products);
 
     const pattern = { cmd: 'createOrder' };
+    const data = await firstValueFrom<any[]>(this.client.send<any[]>(pattern, payload));
+    return data;
+  }
+
+  async getOrder(payload: GetOrderPayload) {
+    const pattern = { cmd: 'getOrder' };
+    const data = await firstValueFrom<any[]>(this.client.send<any[]>(pattern, payload));
+    return data;
+  }
+
+  async getOrders(payload: GetOrdersPayload) {
+    const pattern = { cmd: 'getOrders' };
+    const data = await firstValueFrom<any[]>(this.client.send<any[]>(pattern, payload));
+    return data;
+  }
+
+  async getOrderByCode(payload: GetOrderByCodePayload) {
+    const pattern = { cmd: 'getOrderByCode' };
+    const data = await firstValueFrom<any[]>(this.client.send<any[]>(pattern, payload));
+    return data;
+  }
+
+  async cancelOrder(payload: CancelOrderPayload) {
+    const pattern = { cmd: 'cancelOrder' };
     const data = await firstValueFrom<any[]>(this.client.send<any[]>(pattern, payload));
     return data;
   }

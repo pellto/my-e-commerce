@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt } from 'class-validator';
+import { IsArray, IsInt, IsString, Matches } from 'class-validator';
 
 export class OrderProductDto {
   @IsInt()
@@ -19,4 +19,32 @@ export class CreateOrderPayload {
   @IsArray({ each: true })
   @Type(() => OrderProductDto)
   products: OrderProductDto[];
+}
+
+export class GetOrderPayload {
+  @IsInt()
+  id: number;
+
+  @IsInt()
+  userId: number;
+}
+
+export class GetOrderByCodePayload {
+  @Matches(/^[a-zA-Z0-9]{4}[-]+[a-zA-Z0-9]{4}[-]+[a-zA-Z0-9]{4}[-]+[a-zA-Z0-9]{4}$/)
+  code: string;
+
+  @IsInt()
+  userId: number;
+}
+
+export class GetOrdersPayload {
+  @IsInt()
+  userId: number;
+}
+
+export class CancelOrderPayload {
+  @IsInt()
+  id: number;
+  @IsInt()
+  userId: number;
 }
